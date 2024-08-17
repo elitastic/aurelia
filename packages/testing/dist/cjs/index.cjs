@@ -36,11 +36,11 @@ function uncurryThis(e) {
 
 const w = uncurryThis(Object.prototype.hasOwnProperty);
 
-const E = uncurryThis(Object.prototype.propertyIsEnumerable);
+const k = uncurryThis(Object.prototype.propertyIsEnumerable);
 
-const k = o(Uint8Array.prototype);
+const E = o(Uint8Array.prototype);
 
-const S = uncurryThis(l(k, Symbol.toStringTag).get);
+const S = uncurryThis(l(E, Symbol.toStringTag).get);
 
 const C = uncurryThis(Object.prototype.toString);
 
@@ -60,11 +60,11 @@ const I = uncurryThis(Map.prototype.entries);
 
 const M = uncurryThis(Boolean.prototype.valueOf);
 
-const P = uncurryThis(Number.prototype.valueOf);
+const B = uncurryThis(Number.prototype.valueOf);
 
-const R = uncurryThis(Symbol.prototype.valueOf);
+const P = uncurryThis(Symbol.prototype.valueOf);
 
-const B = uncurryThis(String.prototype.valueOf);
+const R = uncurryThis(String.prototype.valueOf);
 
 function isNumber(e) {
     return typeof e === "number";
@@ -219,7 +219,7 @@ function getOwnNonIndexProperties(e, n) {
 }
 
 function getEnumerables(e, t) {
-    return t.filter((t => E(e, t)));
+    return t.filter((t => k(e, t)));
 }
 
 const N = b({
@@ -510,15 +510,15 @@ function areEqualArrayBuffers(e, t) {
 
 function isEqualBoxedPrimitive(e, t) {
     if (isNumberObject(e)) {
-        return isNumberObject(t) && g(P(e), P(t));
+        return isNumberObject(t) && g(B(e), B(t));
     }
     if (isStringObject(e)) {
-        return isStringObject(t) && B(e) === B(t);
+        return isStringObject(t) && R(e) === R(t);
     }
     if (isBooleanObject(e)) {
         return isBooleanObject(t) && M(e) === M(t);
     }
-    return isSymbolObject(t) && R(e) === R(t);
+    return isSymbolObject(t) && P(e) === P(t);
 }
 
 function innerDeepEqual(e, t, n, i) {
@@ -637,13 +637,13 @@ function keyCheck(e, t, n, i, r, a) {
             let i = 0;
             for (s = 0; s < n.length; s++) {
                 const r = n[s];
-                if (E(e, r)) {
-                    if (!E(t, r)) {
+                if (k(e, r)) {
+                    if (!k(t, r)) {
                         return false;
                     }
                     a.push(r);
                     i++;
-                } else if (E(t, r)) {
+                } else if (k(t, r)) {
                     return false;
                 }
             }
@@ -1529,7 +1529,7 @@ function getKeys(e, t) {
     } else {
         n = m(e);
         if (i.length !== 0) {
-            n.push(...i.filter((t => E(e, t))));
+            n.push(...i.filter((t => k(e, t))));
         }
     }
     return n;
@@ -2069,17 +2069,17 @@ function formatRaw(e, t, n, i) {
         } else if (isBoxedPrimitive(t)) {
             let n;
             if (isNumberObject(t)) {
-                o = `[Number: ${he(P(t), e)}]`;
+                o = `[Number: ${he(B(t), e)}]`;
                 n = "number";
             } else if (isStringObject(t)) {
-                o = `[String: ${he(B(t), e)}]`;
+                o = `[String: ${he(R(t), e)}]`;
                 n = "string";
                 r = r.slice(t.length);
             } else if (isBooleanObject(t)) {
                 o = `[Boolean: ${he(M(t), e)}]`;
                 n = "boolean";
             } else {
-                o = `[Symbol: ${he(R(t), e)}]`;
+                o = `[Symbol: ${he(P(t), e)}]`;
                 n = "symbol";
             }
             if (r.length === 0) {
@@ -4247,7 +4247,7 @@ function isNodeOrTextOrComment(e) {
     return e.nodeType > 0;
 }
 
-const Ee = {
+const ke = {
     delegate: 1,
     capture: 1,
     call: 1
@@ -4273,7 +4273,7 @@ const hJsx = function(e, n, ...i) {
                     const r = n.split("-");
                     if (r.length > 1) {
                         const t = r[r.length - 1];
-                        const n = Ee[t] ? t : "trigger";
+                        const n = ke[t] ? t : "trigger";
                         a.setAttribute(`${r.slice(0, -1).join("-")}.${n}`, e);
                     } else {
                         a.setAttribute(`${r[0]}.trigger`, e);
@@ -4310,9 +4310,9 @@ const hJsx = function(e, n, ...i) {
 
 hJsx.Fragment = "template";
 
-const ke = new t.EventAggregator;
+const Ee = new t.EventAggregator;
 
-const onFixtureCreated = e => ke.subscribe("fixture:created", (t => {
+const onFixtureCreated = e => Ee.subscribe("fixture:created", (t => {
     try {
         e(t);
     } catch (e) {
@@ -4357,7 +4357,7 @@ function createFixture(e, n, r = [], a = true, o = TestContext.create(), l = {})
                     component: x,
                     ...l
                 });
-                k.startPromise = $ = m.start();
+                E.startPromise = $ = m.start();
             } catch (e) {
                 try {
                     const dispose = () => {
@@ -4486,6 +4486,13 @@ function createFixture(e, n, r = [], a = true, o = TestContext.create(), l = {})
         const n = strictQueryBy(e, `to compare value against "${t}"`);
         ye.strictEqual(n.value, t);
     }
+    function assertChecked(e, t) {
+        const n = strictQueryBy(e, `to compare value against "${t}"`);
+        if (!("checked" in n)) {
+            throw new Error("Element does not have a checked property");
+        }
+        ye.strictEqual(n.checked, t, `Expected element (${e}) to  have :checked state as ${t}, but received ${!t}`);
+    }
     function trigger(e, t, n, i) {
         const r = strictQueryBy(e, `to fire event "${t}"`);
         return $triggerEvent(r, o, t, n, i);
@@ -4552,8 +4559,8 @@ function createFixture(e, n, r = [], a = true, o = TestContext.create(), l = {})
         }
         return t;
     };
-    let E;
-    const k = new class Results {
+    let k;
+    const E = new class Results {
         constructor() {
             this.startPromise = $;
             this.ctx = o;
@@ -4578,6 +4585,7 @@ function createFixture(e, n, r = [], a = true, o = TestContext.create(), l = {})
             this.assertAttrNS = assertAttrNS;
             this.assertStyles = assertStyles;
             this.assertValue = assertValue;
+            this.assertChecked = assertChecked;
             this.createEvent = (e, t) => new c.CustomEvent(e, t);
             this.trigger = trigger;
             this.type = type;
@@ -4585,7 +4593,7 @@ function createFixture(e, n, r = [], a = true, o = TestContext.create(), l = {})
             this.flush = flush;
         }
         start() {
-            return (E ??= m.app({
+            return (k ??= m.app({
                 host: p,
                 component: x
             })).start();
@@ -4608,9 +4616,9 @@ function createFixture(e, n, r = [], a = true, o = TestContext.create(), l = {})
             return e;
         }
     };
-    ke.publish("fixture:created", k);
+    Ee.publish("fixture:created", E);
     startFixtureApp();
-    return k;
+    return E;
 }
 
 class FixtureBuilder {

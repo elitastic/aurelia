@@ -145,6 +145,13 @@ export interface IFixture<T> {
      */
     assertValue(selector: string, value: unknown): void;
     /**
+     * Assert whether an element matching the given selector has the :checked state.
+     *
+     * Will throw if there's no checked property on the element
+     * Will throw if there' more than one elements with matching selector
+     */
+    assertChecked(selector: string, value: boolean): void;
+    /**
      * Create a custom event by the given name and init for the current platform
      */
     createEvent<T>(name: string, init?: CustomEventInit<T>): CustomEvent;

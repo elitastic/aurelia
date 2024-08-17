@@ -304,6 +304,8 @@ class ValidationController {
                     .map(([object, rules]) => new validation.ValidateInstruction(object, void 0, rules, objectTag)),
                 ...Array.from(this.bindings.entries())
                     .reduce((acc, [binding, info]) => {
+                    if (!binding.isBound)
+                        return acc;
                     const propertyInfo = getPropertyInfo(binding, info);
                     if (propertyInfo !== void 0 && !this.objects.has(propertyInfo.object)) {
                         acc.push(new validation.ValidateInstruction(propertyInfo.object, propertyInfo.propertyName, info.rules, objectTag, instruction?.propertyTag));
@@ -653,7 +655,7 @@ class ValidateBindingBehavior {
         }
         let connector = validationConnectorMap.get(binding);
         if (connector == null) {
-            validationConnectorMap.set(binding, connector = new ValidatitionConnector(this._platform, this._observerLocator, binding.get(IDefaultTrigger), binding, binding.get(kernel.IContainer)));
+            validationConnectorMap.set(binding, connector = new ValidationConnector(this._platform, this._observerLocator, binding.get(IDefaultTrigger), binding, binding.get(kernel.IContainer)));
         }
         let targetSubscriber = validationTargetSubscriberMap.get(binding);
         if (targetSubscriber == null) {
@@ -674,7 +676,7 @@ runtimeHtml.BindingBehavior.define('validate', ValidateBindingBehavior);
 /**
  * Binding behavior. Indicates the bound property should be validated.
  */
-class ValidatitionConnector {
+class ValidationConnector {
     constructor(platform, observerLocator, defaultTrigger, propertyBinding, locator) {
         this.isChangeTrigger = false;
         this.isDirty = false;
@@ -725,6 +727,7 @@ class ValidatitionConnector {
         if (triggerEventName !== null) {
             this.target?.removeEventListener(triggerEventName, this);
         }
+        this.controller?.resetBinding(this.propertyBinding);
         this.controller?.removeSubscriber(this);
     }
     handleTriggerChange(newValue, _previousValue) {
@@ -876,8 +879,8 @@ class ValidatitionConnector {
         return this.bindingInfo = new BindingInfo(this.target, this.scope, rules);
     }
 }
-runtime.connectable(ValidatitionConnector, null);
-runtimeHtml.mixinAstEvaluator(true)(ValidatitionConnector);
+runtime.connectable(ValidationConnector, null);
+runtimeHtml.mixinAstEvaluator(true)(ValidationConnector);
 class WithValidationTargetSubscriber extends runtimeHtml.BindingTargetSubscriber {
     constructor(_validationSubscriber, binding, flushQueue) {
         super(binding, flushQueue);

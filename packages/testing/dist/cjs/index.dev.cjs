@@ -7927,6 +7927,13 @@ function createFixture(template, $class, registrations = [], autoStart = true, c
         const el = strictQueryBy(selector, `to compare value against "${value}"`);
         assert.strictEqual(el.value, value);
     }
+    function assertChecked(selector, value) {
+        const el = strictQueryBy(selector, `to compare value against "${value}"`);
+        if (!('checked' in el)) {
+            throw new Error('Element does not have a checked property');
+        }
+        assert.strictEqual(el.checked, value, `Expected element (${selector}) to  have :checked state as ${value}, but received ${!value}`);
+    }
     function trigger(selector, event, init, overrides) {
         const el = strictQueryBy(selector, `to fire event "${event}"`);
         return $triggerEvent(el, ctx, event, init, overrides);
@@ -8024,6 +8031,7 @@ function createFixture(template, $class, registrations = [], autoStart = true, c
             this.assertAttrNS = assertAttrNS;
             this.assertStyles = assertStyles;
             this.assertValue = assertValue;
+            this.assertChecked = assertChecked;
             this.createEvent = (name, init) => new platform.CustomEvent(name, init);
             this.trigger = trigger;
             this.type = type;

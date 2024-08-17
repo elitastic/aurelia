@@ -8272,6 +8272,7 @@ class CheckedObserver {
      * @internal
      */
     _stop() {
+        this._value = this._oldValue = void 0;
         this._collectionObserver?.unsubscribe(this);
         this._valueObserver?.unsubscribe(this);
         this._collectionObserver = this._valueObserver = void 0;
@@ -8281,6 +8282,7 @@ class CheckedObserver {
         oV = this._oldValue;
         this._oldValue = this._value;
         this.subs.notify(this._value, oV);
+        oV = void 0;
     }
     /** @internal */
     _observe() {
@@ -8400,6 +8402,7 @@ class If {
         if (newValue !== oldValue)
             return this._swap(newValue);
     }
+    /** @internal */
     _swap(value) {
         const currView = this.view;
         const ctrl = this.$controller;
@@ -10999,7 +11002,7 @@ function createConfiguration(optionsProvider) {
              * - `DefaultResources`
              * - `DefaultRenderers`
              */
-            return container.register(instanceRegistration(runtime.ICoercionConfiguration, runtimeConfigurationOptions.coercingOptions), ...DefaultComponents, ...DefaultResources, ...DefaultBindingSyntax, ...DefaultBindingLanguage, ...DefaultRenderers);
+            return container.register(instanceRegistration(runtime.ICoercionConfiguration, runtimeConfigurationOptions.coercingOptions), expressionParser.ExpressionParser, ...DefaultComponents, ...DefaultResources, ...DefaultBindingSyntax, ...DefaultBindingLanguage, ...DefaultRenderers);
         },
         customize(cb) {
             return createConfiguration(cb ?? optionsProvider);

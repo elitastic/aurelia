@@ -7036,6 +7036,7 @@ class CheckedObserver {
         this.Qe();
     }
     lt() {
+        this.v = this.ov = void 0;
         this.Ke?.unsubscribe(this);
         this.Xe?.unsubscribe(this);
         this.Ke = this.Xe = void 0;
@@ -7044,6 +7045,7 @@ class CheckedObserver {
         xs = this.ov;
         this.ov = this.v;
         this.subs.notify(this.v, xs);
+        xs = void 0;
     }
     Qe() {
         const t = this.nt;
@@ -9303,21 +9305,21 @@ const Ns = [ Ut, Gt, jt, zt, Vt, Ht, $t, Nt, Wt, Qt, ee, Yt, Zt, Jt, te, Kt, se,
 
 const Ws = /*@__PURE__*/ createConfiguration(e.noop);
 
-function createConfiguration(t) {
+function createConfiguration(e) {
     return {
-        optionsProvider: t,
-        register(e) {
-            const i = {
+        optionsProvider: e,
+        register(i) {
+            const n = {
                 coercingOptions: {
                     enableCoercion: false,
                     coerceNullish: false
                 }
             };
-            t(i);
-            return e.register(G(s.ICoercionConfiguration, i.coercingOptions), ...Os, ...$s, ...Fs, ...Hs, ...Ns);
+            e(n);
+            return i.register(G(s.ICoercionConfiguration, n.coercingOptions), t.ExpressionParser, ...Os, ...$s, ...Fs, ...Hs, ...Ns);
         },
-        customize(e) {
-            return createConfiguration(e ?? t);
+        customize(t) {
+            return createConfiguration(t ?? e);
         }
     };
 }

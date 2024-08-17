@@ -1,4 +1,4 @@
-import { DestructuringAssignmentSingleExpression, AccessScopeExpression, IExpressionParser } from '../../../expression-parser/dist/native-modules/index.mjs';
+import { DestructuringAssignmentSingleExpression, AccessScopeExpression, IExpressionParser, ExpressionParser } from '../../../expression-parser/dist/native-modules/index.mjs';
 import { isString, createLookup, isObject, isFunction, isArray, isArrayIndex, Protocol, getPrototypeChain, kebabCase, noop, DI, Registration, firstDefined, mergeArrays, resourceBaseName, resource, getResourceKeyFor, resolve, IPlatform as IPlatform$1, emptyArray, ILogger, registrableMetadataKey, all, own, InstanceProvider, IContainer, toArray, areEqual, optionalResource, optional, LogLevel, onResolveAll, isPromise, onResolve, fromDefinitionOrDefault, pascalCase, fromAnnotationOrDefinitionOrTypeOrDefault, fromAnnotationOrTypeOrDefault, isSymbol, createImplementationRegister, IServiceLocator, emptyObject, isNumber, isSet, isMap, transient } from '../../../kernel/dist/native-modules/index.mjs';
 import { AccessorType, connectable, subscriberCollection, IObserverLocator, ConnectableSwitcher, ProxyObservable, ICoercionConfiguration, PropertyAccessor, INodeObserverLocator, IDirtyChecker, getObserverLookup, SetterObserver, createIndexMap, getCollectionObserver as getCollectionObserver$1, DirtyChecker } from '../../../runtime/dist/native-modules/index.mjs';
 import { BindingMode, InstructionType, ITemplateCompiler, IInstruction, TemplateCompilerHooks, IAttrMapper, IResourceResolver, TemplateCompiler, AttributePattern, AttrSyntax, RefAttributePattern, DotSeparatedAttributePattern, EventAttributePattern, AtPrefixedTriggerAttributePattern, ColonPrefixedBindAttributePattern, DefaultBindingCommand, OneTimeBindingCommand, FromViewBindingCommand, ToViewBindingCommand, TwoWayBindingCommand, ForBindingCommand, RefBindingCommand, TriggerBindingCommand, CaptureBindingCommand, ClassBindingCommand, StyleBindingCommand, AttrBindingCommand, SpreadValueBindingCommand } from '../../../template-compiler/dist/native-modules/index.mjs';
@@ -8269,6 +8269,7 @@ class CheckedObserver {
      * @internal
      */
     _stop() {
+        this._value = this._oldValue = void 0;
         this._collectionObserver?.unsubscribe(this);
         this._valueObserver?.unsubscribe(this);
         this._collectionObserver = this._valueObserver = void 0;
@@ -8278,6 +8279,7 @@ class CheckedObserver {
         oV = this._oldValue;
         this._oldValue = this._value;
         this.subs.notify(this._value, oV);
+        oV = void 0;
     }
     /** @internal */
     _observe() {
@@ -8397,6 +8399,7 @@ class If {
         if (newValue !== oldValue)
             return this._swap(newValue);
     }
+    /** @internal */
     _swap(value) {
         const currView = this.view;
         const ctrl = this.$controller;
@@ -10996,7 +10999,7 @@ function createConfiguration(optionsProvider) {
              * - `DefaultResources`
              * - `DefaultRenderers`
              */
-            return container.register(instanceRegistration(ICoercionConfiguration, runtimeConfigurationOptions.coercingOptions), ...DefaultComponents, ...DefaultResources, ...DefaultBindingSyntax, ...DefaultBindingLanguage, ...DefaultRenderers);
+            return container.register(instanceRegistration(ICoercionConfiguration, runtimeConfigurationOptions.coercingOptions), ExpressionParser, ...DefaultComponents, ...DefaultResources, ...DefaultBindingSyntax, ...DefaultBindingLanguage, ...DefaultRenderers);
         },
         customize(cb) {
             return createConfiguration(cb ?? optionsProvider);

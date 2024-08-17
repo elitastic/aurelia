@@ -213,6 +213,7 @@ class ValidationController {
             r = [ new i.ValidateInstruction(e, t?.propertyName, t?.rules ?? this.objects.get(e), s, t?.propertyTag) ];
         } else {
             r = [ ...Array.from(this.objects.entries()).map((([t, e]) => new i.ValidateInstruction(t, void 0, e, s))), ...Array.from(this.bindings.entries()).reduce(((e, [r, n]) => {
+                if (!r.isBound) return e;
                 const o = getPropertyInfo(r, n);
                 if (o !== void 0 && !this.objects.has(o.object)) {
                     e.push(new i.ValidateInstruction(o.object, o.propertyName, n.rules, s, t?.propertyTag));
@@ -542,7 +543,7 @@ class ValidateBindingBehavior {
         }
         let r = c.get(s);
         if (r == null) {
-            c.set(s, r = new ValidatitionConnector(this.p, this.oL, s.get(h), s, s.get(t.IContainer)));
+            c.set(s, r = new ValidationConnector(this.p, this.oL, s.get(h), s, s.get(t.IContainer)));
         }
         let n = u.get(s);
         if (n == null) {
@@ -558,7 +559,7 @@ class ValidateBindingBehavior {
 
 e.BindingBehavior.define("validate", ValidateBindingBehavior);
 
-class ValidatitionConnector {
+class ValidationConnector {
     constructor(t, i, e, s, r) {
         this.isChangeTrigger = false;
         this.isDirty = false;
@@ -604,6 +605,7 @@ class ValidatitionConnector {
         if (t !== null) {
             this.target?.removeEventListener(t, this);
         }
+        this.controller?.resetBinding(this.propertyBinding);
         this.controller?.removeSubscriber(this);
     }
     handleTriggerChange(t, i) {
@@ -740,9 +742,9 @@ class ValidatitionConnector {
     }
 }
 
-r.connectable(ValidatitionConnector, null);
+r.connectable(ValidationConnector, null);
 
-e.mixinAstEvaluator(true)(ValidatitionConnector);
+e.mixinAstEvaluator(true)(ValidationConnector);
 
 class WithValidationTargetSubscriber extends e.BindingTargetSubscriber {
     constructor(t, i, e) {
