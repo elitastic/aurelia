@@ -1932,9 +1932,11 @@ class SetterObserver {
             }
             j = this.v;
             this.v = e;
-            this.cb?.(e, j);
             this.subs.notifyDirty();
             this.subs.notify(e, j);
+            if (t.areEqual(e, this.v)) {
+                this.cb?.(e, j);
+            }
         } else {
             this.v = this.o[this.k] = e;
             this.cb?.(e, j);
@@ -2378,11 +2380,11 @@ const U = /*@__PURE__*/ (() => {
             if (!t.areEqual(e, this.v)) {
                 this.ov = this.v;
                 this.v = e;
-                this.cb?.call(this.o, this.v, this.ov);
-                e = this.ov;
-                this.ov = this.v;
                 this.subs.notifyDirty();
-                this.subs.notify(this.v, e);
+                this.subs.notify(this.v, this.ov);
+                if (t.areEqual(e, this.v)) {
+                    this.cb?.call(this.o, this.v, this.ov);
+                }
             }
         }
     }

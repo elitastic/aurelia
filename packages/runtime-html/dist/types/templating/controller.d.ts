@@ -440,12 +440,20 @@ export interface ICustomElementViewModel extends IViewModel, IActivationHooks<IH
     readonly $controller?: ICustomElementController<this>;
     created?(controller: ICustomElementController<this>): void;
     propertyChanged?(key: PropertyKey, newValue: unknown, oldValue: unknown): void;
+    propertiesChanged?(changes: Record<string, {
+        newValue: unknown;
+        oldValue: unknown;
+    }>): void;
 }
 export interface ICustomAttributeViewModel extends IViewModel, IActivationHooks<IHydratedController> {
     readonly $controller?: ICustomAttributeController<this>;
     link?(controller: IHydratableController, childController: ICustomAttributeController, target: INode, instruction: IInstruction): void;
     created?(controller: ICustomAttributeController<this>): void;
     propertyChanged?(key: PropertyKey, newValue: unknown, oldValue: unknown): void;
+    propertiesChanged?(changes: Record<string, {
+        newValue: unknown;
+        oldValue: unknown;
+    }>): void;
 }
 export interface IHydratedCustomElementViewModel extends ICustomElementViewModel {
     readonly $controller: ICustomElementController<this>;

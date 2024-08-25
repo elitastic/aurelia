@@ -2105,9 +2105,14 @@ class SetterObserver {
             }
             oV = this._value;
             this._value = newValue;
-            this._callback?.(newValue, oV);
             this.subs.notifyDirty();
             this.subs.notify(newValue, oV);
+            // only call the callback if _value is the same with newValue
+            // which means if during subs.notify() the value of this observer is changed
+            // then it's the job of that setValue() to call the callback
+            if (areEqual(newValue, this._value)) {
+                this._callback?.(newValue, oV);
+            }
         }
         else {
             // If subscribe() has been called, the target property descriptor is replaced by these getter/setter methods,
@@ -2594,13 +2599,13 @@ const observable = /*@__PURE__*/ (() => {
             if (!areEqual(value, this._value)) {
                 this._oldValue = this._value;
                 this._value = value;
-                this.cb?.call(this._obj, this._value, this._oldValue);
-                // this._value might have been updated during the callback
-                // we only want to notify subscribers with the latest values
-                value = this._oldValue;
-                this._oldValue = this._value;
                 this.subs.notifyDirty();
-                this.subs.notify(this._value, value);
+                this.subs.notify(this._value, this._oldValue);
+                // if the value has been changed during the notify, don't call the callback
+                // it's the job of the last .setValue() to call the callback
+                if (areEqual(value, this._value)) {
+                    this.cb?.call(this._obj, this._value, this._oldValue);
+                }
             }
         }
     }

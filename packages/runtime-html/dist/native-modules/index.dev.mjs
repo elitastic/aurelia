@@ -5857,27 +5857,60 @@ function createObservers(controller, definition, instance) {
     const observableNames = getOwnPropertyNames(bindables);
     const length = observableNames.length;
     const locator = controller.container.get(IObserverLocator);
-    if (length > 0) {
-        for (let i = 0; i < length; ++i) {
-            const name = observableNames[i];
-            const bindable = bindables[name];
-            const handler = bindable.callback;
-            const obs = locator.getObserver(instance, name);
-            if (bindable.set !== noop) {
-                if (obs.useCoercer?.(bindable.set, controller.coercion) !== true) {
-                    throw createMappedError(507 /* ErrorNames.controller_property_not_coercible */, name);
+    const hasAggregatedCallbacks = 'propertiesChanged' in instance;
+    if (length === 0)
+        return;
+    const queueCallback = hasAggregatedCallbacks
+        ? (() => {
+            let changes = {};
+            let promise = void 0;
+            let changeCount = 0;
+            const resolvedPromise = Promise.resolve();
+            const callPropertiesChanged = () => {
+                if (promise == null) {
+                    promise = resolvedPromise.then(() => {
+                        const $changes = changes;
+                        changes = {};
+                        changeCount = 0;
+                        promise = void 0;
+                        if (controller.isBound) {
+                            instance.propertiesChanged?.($changes);
+                            if (changeCount > 0) {
+                                callPropertiesChanged();
+                            }
+                        }
+                    });
                 }
+            };
+            return (key, newValue, oldValue) => {
+                changes[key] = { newValue, oldValue };
+                changeCount++;
+                callPropertiesChanged();
+            };
+        })()
+        : noop;
+    for (let i = 0; i < length; ++i) {
+        const name = observableNames[i];
+        const bindable = bindables[name];
+        const handler = bindable.callback;
+        const obs = locator.getObserver(instance, name);
+        if (bindable.set !== noop) {
+            if (obs.useCoercer?.(bindable.set, controller.coercion) !== true) {
+                throw createMappedError(507 /* ErrorNames.controller_property_not_coercible */, name);
             }
-            if (instance[handler] != null || instance.propertyChanged != null) {
-                const callback = (newValue, oldValue) => {
-                    if (controller.isBound) {
-                        instance[handler]?.(newValue, oldValue);
-                        instance.propertyChanged?.(name, newValue, oldValue);
-                    }
-                };
-                if (obs.useCallback?.(callback) !== true) {
-                    throw createMappedError(508 /* ErrorNames.controller_property_no_change_handler */, name);
+        }
+        if (instance[handler] != null
+            || instance.propertyChanged != null
+            || hasAggregatedCallbacks) {
+            const callback = (newValue, oldValue) => {
+                if (controller.isBound) {
+                    instance[handler]?.(newValue, oldValue);
+                    instance.propertyChanged?.(name, newValue, oldValue);
+                    queueCallback(name, newValue, oldValue);
                 }
+            };
+            if (obs.useCallback?.(callback) !== true) {
+                throw createMappedError(508 /* ErrorNames.controller_property_no_change_handler */, name);
             }
         }
     }

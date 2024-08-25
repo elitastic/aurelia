@@ -1930,9 +1930,11 @@ class SetterObserver {
             }
             X = this.v;
             this.v = t;
-            this.cb?.(t, X);
             this.subs.notifyDirty();
             this.subs.notify(t, X);
+            if (n(t, this.v)) {
+                this.cb?.(t, X);
+            }
         } else {
             this.v = this.o[this.k] = t;
             this.cb?.(t, X);
@@ -2376,11 +2378,11 @@ const nt = /*@__PURE__*/ (() => {
             if (!n(t, this.v)) {
                 this.ov = this.v;
                 this.v = t;
-                this.cb?.call(this.o, this.v, this.ov);
-                t = this.ov;
-                this.ov = this.v;
                 this.subs.notifyDirty();
-                this.subs.notify(this.v, t);
+                this.subs.notify(this.v, this.ov);
+                if (n(t, this.v)) {
+                    this.cb?.call(this.o, this.v, this.ov);
+                }
             }
         }
     }
